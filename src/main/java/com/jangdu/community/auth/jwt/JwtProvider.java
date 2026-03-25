@@ -5,21 +5,28 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtProvider {
 
     private final JwtProperties jwtProperties;
+    private SecretKey signingKey;
 
-    private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
+    @PostConstruct
+    protected void init() {
+        this.signingKey = Keys.hmacShaKeyFor(
+                jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8)
+        );
     }
 
     public String createAccessToken(Long userId, String email) {
@@ -39,13 +46,12 @@ public class JwtProvider {
                 .claim("email", email)
                 .issuedAt(now)
                 .expiration(expiryDate)
-                .signWith(getSigningKey())
+                .signWith(signingKey)
                 .compact();
     }
 
     public Long getUserId(String token) {
-        Claims claims = parseClaims(token);
-        return Long.parseLong(claims.getSubject());
+        return Long.parseLong(parseClaims(token).getSubject());
     }
 
     public boolean validateToken(String token) {
@@ -53,15 +59,17 @@ public class JwtProvider {
             parseClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
+            log.warn("Expired JWT token");
             return false;
         } catch (JwtException e) {
+            log.warn("Invalid JWT token: {}", e.getMessage());
             return false;
         }
     }
 
     private Claims parseClaims(String token) {
         return Jwts.parser()
-                .verifyWith(getSigningKey())
+                .verifyWith(signingKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
