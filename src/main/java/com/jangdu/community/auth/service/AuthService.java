@@ -2,6 +2,8 @@ package com.jangdu.community.auth.service;
 
 import com.jangdu.community.auth.dto.LoginRequest;
 import com.jangdu.community.auth.dto.SignupRequest;
+import com.jangdu.community.auth.dto.TokenResponse;
+import com.jangdu.community.auth.jwt.JwtProvider;
 import com.jangdu.community.global.exception.BusinessException;
 import com.jangdu.community.global.exception.ErrorCode;
 import com.jangdu.community.user.entity.User;
@@ -17,9 +19,10 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
 
     @Transactional
-    public User signup(SignupRequest request) {
+    public TokenResponse signup(SignupRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
         }
@@ -30,11 +33,13 @@ public class AuthService {
                 .nickname(request.getNickname())
                 .build();
 
-        return userRepository.save(user);
+        userRepository.save(user);
+
+        return createTokenResponse(user);
     }
 
     @Transactional(readOnly = true)
-    public User login(LoginRequest request) {
+    public TokenResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
@@ -42,6 +47,25 @@ public class AuthService {
             throw new BusinessException(ErrorCode.INVALID_PASSWORD);
         }
 
-        return user;
+        return createTokenResponse(user);
+    }
+
+    public TokenResponse refresh(String refreshToken) {
+        if (!jwtProvider.validateToken(refreshToken)) {
+            throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
+
+        Long userId = jwtProvider.getUserId(refreshToken);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        return createTokenResponse(user);
+    }
+
+    private TokenResponse createTokenResponse(User user) {
+        return TokenResponse.builder()
+                .accessToken(jwtProvider.createAccessToken(user.getId(), user.getEmail()))
+                .refreshToken(jwtProvider.createRefreshToken(user.getId(), user.getEmail()))
+                .build();
     }
 }
