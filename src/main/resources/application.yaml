@@ -5,3 +5,5 @@ spring:
     active: local
   jpa:
     open-in-view: false
+  autoconfigure:
+    exclude: org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration

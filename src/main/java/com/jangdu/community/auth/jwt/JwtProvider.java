@@ -1,5 +1,6 @@
 package com.jangdu.community.auth.jwt;
 
+import com.jangdu.community.user.entity.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -29,21 +30,22 @@ public class JwtProvider {
         );
     }
 
-    public String createAccessToken(Long userId, String email) {
-        return createToken(userId, email, jwtProperties.getAccessTokenExpiry());
+    public String createAccessToken(Long userId, String email, Role role) {
+        return createToken(userId, email, role, jwtProperties.getAccessTokenExpiry());
     }
 
-    public String createRefreshToken(Long userId, String email) {
-        return createToken(userId, email, jwtProperties.getRefreshTokenExpiry());
+    public String createRefreshToken(Long userId, String email, Role role) {
+        return createToken(userId, email, role, jwtProperties.getRefreshTokenExpiry());
     }
 
-    private String createToken(Long userId, String email, long expiry) {
+    private String createToken(Long userId, String email, Role role, long expiry) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiry);
 
         return Jwts.builder()
                 .subject(String.valueOf(userId))
                 .claim("email", email)
+                .claim("role", role.name())
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(signingKey)
@@ -52,6 +54,10 @@ public class JwtProvider {
 
     public Long getUserId(String token) {
         return Long.parseLong(parseClaims(token).getSubject());
+    }
+
+    public String getRole(String token) {
+        return parseClaims(token).get("role", String.class);
     }
 
     public boolean validateToken(String token) {

@@ -26,11 +26,16 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false, length = 30)
     private String nickname;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private Role role;
+
     @Builder
-    private User(String email, String password, String nickname) {
+    private User(String email, String password, String nickname, Role role) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
+        this.role = role;
     }
 
     public static User create(String email, String encodedPassword, String nickname) {
@@ -38,6 +43,7 @@ public class User extends BaseTimeEntity {
                 .email(email)
                 .password(encodedPassword)
                 .nickname(nickname)
+                .role(Role.USER)
                 .build();
     }
 }
