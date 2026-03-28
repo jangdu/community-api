@@ -10,17 +10,20 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Set<String> SENSITIVE_FIELDS = Set.of("password", "secret", "token");
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException e) {
         List<ErrorResponse.FieldError> fieldErrors = e.getBindingResult().getFieldErrors().stream()
                 .map(error -> ErrorResponse.FieldError.builder()
                         .field(error.getField())
-                        .value(error.getRejectedValue() == null ? "" : error.getRejectedValue().toString())
+                        .value(maskSensitiveValue(error.getField(), error.getRejectedValue()))
                         .reason(error.getDefaultMessage())
                         .build())
                 .toList();
@@ -60,5 +63,11 @@ public class GlobalExceptionHandler {
         log.error("Unexpected error occurred: {}", e.getMessage(), e);
         ErrorResponse response = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR);
         return ResponseEntity.status(ErrorCode.INTERNAL_SERVER_ERROR.getStatus()).body(response);
+    }
+
+    private String maskSensitiveValue(String field, Object value) {
+        if (value == null) return "";
+        if (SENSITIVE_FIELDS.contains(field.toLowerCase())) return "***";
+        return value.toString();
     }
 }

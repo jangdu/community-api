@@ -9,10 +9,12 @@ import com.jangdu.community.global.exception.ErrorCode;
 import com.jangdu.community.user.entity.User;
 import com.jangdu.community.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -33,6 +35,7 @@ public class AuthService {
         );
 
         userRepository.save(user);
+        log.info("User signed up: email={}", request.getEmail());
 
         return issueTokens(user);
     }
@@ -43,6 +46,7 @@ public class AuthService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         validatePassword(request.getPassword(), user.getPassword());
+        log.info("User logged in: userId={}", user.getId());
 
         return issueTokens(user);
     }
@@ -61,6 +65,7 @@ public class AuthService {
 
     public void logout(Long userId) {
         refreshTokenService.delete(userId);
+        log.info("User logged out: userId={}", userId);
     }
 
     private void validateDuplicateEmail(String email) {
