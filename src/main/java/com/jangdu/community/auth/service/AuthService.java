@@ -40,12 +40,17 @@ public class AuthService {
         return issueTokens(user);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public TokenResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
+        if (!user.isActive()) {
+            throw new BusinessException(ErrorCode.ACCOUNT_DISABLED);
+        }
+
         validatePassword(request.getPassword(), user.getPassword());
+        user.updateLastLoginAt();
         log.info("User logged in: userId={}", user.getId());
 
         return issueTokens(user);

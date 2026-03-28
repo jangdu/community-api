@@ -1,10 +1,12 @@
 package com.jangdu.community.user.controller;
 
 import com.jangdu.community.global.common.ApiResponse;
+import com.jangdu.community.user.dto.UpdateProfileRequest;
 import com.jangdu.community.user.dto.UserResponse;
 import com.jangdu.community.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,16 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponse>> getMe(Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
         UserResponse response = userService.getMyInfo(userId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @Operation(summary = "프로필 수정")
+    @PatchMapping("/me")
+    public ResponseEntity<ApiResponse<UserResponse>> updateProfile(
+            Authentication authentication,
+            @Valid @RequestBody UpdateProfileRequest request) {
+        Long userId = (Long) authentication.getPrincipal();
+        UserResponse response = userService.updateProfile(userId, request);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -33,12 +35,26 @@ public class User extends BaseTimeEntity {
     @Column(name = "avatar_url", length = 500)
     private String avatarUrl;
 
+    @Column(length = 200)
+    private String bio;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private UserStatus status;
+
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     @Builder
     private User(String email, String password, String nickname, Role role) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.role = role;
+        this.status = UserStatus.ACTIVE;
     }
 
     public static User create(String email, String encodedPassword, String nickname) {
@@ -50,7 +66,38 @@ public class User extends BaseTimeEntity {
                 .build();
     }
 
+    public void updateProfile(String nickname, String bio) {
+        if (nickname != null) this.nickname = nickname;
+        if (bio != null) this.bio = bio;
+    }
+
     public void updateAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+    }
+
+    public void updateBio(String bio) {
+        this.bio = bio;
+    }
+
+    public void updateLastLoginAt() {
+        this.lastLoginAt = LocalDateTime.now();
+    }
+
+    public void suspend() {
+        this.status = UserStatus.SUSPENDED;
+    }
+
+    public void delete() {
+        this.status = UserStatus.DELETED;
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public void restore() {
+        this.status = UserStatus.ACTIVE;
+        this.deletedAt = null;
+    }
+
+    public boolean isActive() {
+        return this.status == UserStatus.ACTIVE;
     }
 }

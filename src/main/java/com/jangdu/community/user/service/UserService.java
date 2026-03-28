@@ -3,6 +3,7 @@ package com.jangdu.community.user.service;
 import com.jangdu.community.global.exception.BusinessException;
 import com.jangdu.community.global.exception.ErrorCode;
 import com.jangdu.community.global.storage.StorageService;
+import com.jangdu.community.user.dto.UpdateProfileRequest;
 import com.jangdu.community.user.dto.UserResponse;
 import com.jangdu.community.user.entity.User;
 import com.jangdu.community.user.repository.UserRepository;
@@ -35,6 +36,13 @@ public class UserService {
 
     public UserResponse getMyInfo(Long userId) {
         User user = findById(userId);
+        return UserResponse.from(user);
+    }
+
+    @Transactional
+    public UserResponse updateProfile(Long userId, UpdateProfileRequest request) {
+        User user = findById(userId);
+        user.updateProfile(request.getNickname(), request.getBio());
         return UserResponse.from(user);
     }
 
