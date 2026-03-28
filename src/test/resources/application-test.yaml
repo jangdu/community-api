@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  flyway:
+    enabled: false
+  data:
+    redis:
+      host: localhost
+      port: 6380
+      password: redis1234
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+
+cloud:
+  aws:
+    s3:
+      bucket: test-bucket
+      region: ap-northeast-2
+      access-key: test-key
+      secret-key: test-secret
+
+jwt:
+  secret: test-secret-key-must-be-at-least-256-bits-long-for-hs256-algorithm-test
+  access-token-expiry: 1800000
+  refresh-token-expiry: 604800000
+
+cors:
+  allowed-origins: http://localhost:3000

@@ -30,6 +30,9 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false, length = 10)
     private Role role;
 
+    @Column(name = "avatar_url", length = 500)
+    private String avatarUrl;
+
     @Builder
     private User(String email, String password, String nickname, Role role) {
         this.email = email;
@@ -45,5 +48,9 @@ public class User extends BaseTimeEntity {
                 .nickname(nickname)
                 .role(Role.USER)
                 .build();
+    }
+
+    public void updateAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.List;
 import java.util.Set;
@@ -56,6 +57,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
         ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT);
         return ResponseEntity.status(ErrorCode.INVALID_INPUT.getStatus()).body(response);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxUploadSize(MaxUploadSizeExceededException e) {
+        ErrorResponse response = ErrorResponse.of(ErrorCode.FILE_SIZE_EXCEEDED);
+        return ResponseEntity.status(ErrorCode.FILE_SIZE_EXCEEDED.getStatus()).body(response);
     }
 
     @ExceptionHandler(Exception.class)

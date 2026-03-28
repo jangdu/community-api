@@ -20,7 +20,13 @@ public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "A002", "존재하지 않는 사용자입니다"),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "A003", "비밀번호가 일치하지 않습니다"),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "A004", "유효하지 않은 리프레시 토큰입니다"),
-    EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "A005", "만료된 토큰입니다");
+    EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "A005", "만료된 토큰입니다"),
+
+    // File
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "F001", "파일 업로드에 실패했습니다"),
+    FILE_EMPTY(HttpStatus.BAD_REQUEST, "F002", "파일이 비어있습니다"),
+    FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "F003", "파일 크기가 5MB를 초과합니다"),
+    FILE_TYPE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "F004", "허용되지 않은 파일 형식입니다 (jpeg, png, gif, webp만 가능)");
 
     private final HttpStatus status;
     private final String code;

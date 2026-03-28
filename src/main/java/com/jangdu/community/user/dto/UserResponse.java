@@ -15,6 +15,7 @@ public class UserResponse {
     private final String email;
     private final String nickname;
     private final Role role;
+    private final String avatarUrl;
     private final LocalDateTime createdAt;
 
     public static UserResponse from(User user) {
@@ -23,6 +24,7 @@ public class UserResponse {
                 .email(user.getEmail())
                 .nickname(user.getNickname())
                 .role(user.getRole())
+                .avatarUrl(user.getAvatarUrl())
                 .createdAt(user.getCreatedAt())
                 .build();
     }
