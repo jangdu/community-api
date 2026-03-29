@@ -27,7 +27,14 @@ public enum ErrorCode {
     FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "F001", "파일 업로드에 실패했습니다"),
     FILE_EMPTY(HttpStatus.BAD_REQUEST, "F002", "파일이 비어있습니다"),
     FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "F003", "파일 크기가 5MB를 초과합니다"),
-    FILE_TYPE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "F004", "허용되지 않은 파일 형식입니다 (jpeg, png, gif, webp만 가능)");
+    FILE_TYPE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "F004", "허용되지 않은 파일 형식입니다 (jpeg, png, gif, webp만 가능)"),
+
+    // Post
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "P001", "존재하지 않는 게시글입니다"),
+    POST_NOT_AUTHOR(HttpStatus.FORBIDDEN, "P002", "게시글 작성자만 수정/삭제할 수 있습니다"),
+
+    // Category
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "G001", "존재하지 않는 카테고리입니다");
 
     private final HttpStatus status;
     private final String code;
